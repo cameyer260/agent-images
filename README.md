@@ -37,10 +37,24 @@ on the host:
 Login once per image from an interactive container run (or an interactive `dev`
 shell) and let the mount persist it.
 
-## Versioning / updating
+## Versions (hardcoded in the Dockerfiles)
 
-- `agent-pi` is pinned via the `@...@PINNED_VERSION` placeholder; replace it
-  with a real version and rebuild when you want to move.
-- `agent-cursor` fetches latest on install and auto-updates; record the
-  installed `cursor-agent --version` (and `agent --version`) in the VPS runbook.
-- Rebuild the base layer when you add CLIs or skills dependencies.
+| Tool | Where it's defined | Version |
+|---|---|---|
+| Pi agent | `agent-pi.Dockerfile` npm install | `@earendil-works/pi-coding-agent@0.84.1` |
+| Node (Pi) | `agent-pi.Dockerfile` `NODE_VERSION` | `v24.19.0` (LTS) |
+| Cursor CLI | `agent-cursor.Dockerfile` `CURSOR_VERSION` | `2026.08.11-e8db854` |
+| gh, bx, git, rg, fd, jq | `base.Dockerfile` | from the Ubuntu 24.04 apt repo / their installers |
+
+`.x`-versions aren't used; upgrade by editing the exact version in the
+Dockerfile and rebuilding. The Cursor package bundles its own Node, so the
+cursor image has no separate Node install.
+
+## Updating
+
+To bump a tool, change its exact version in the relevant Dockerfile and re-run
+`build-images.sh` (e.g. `npm view @earendil-works/pi-coding-agent version` for
+Pi, `curl -fsS https://cursor.com/install | grep -oE 'lab/[0-9.]+-[a-f0-9]+'`
+for the current Cursor build string). Rebuild the base layer when you add CLIs
+or skills dependencies. Record what's installed (`pi --version`,
+`cursor-agent --version`) in the VPS runbook.
