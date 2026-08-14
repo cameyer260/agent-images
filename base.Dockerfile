@@ -3,11 +3,6 @@
 # Provides a non-root `dev` user (matching the host's dev uid/gid via build
 # args) plus the common CLIs the skills call: git, ripgrep, fd, jq, gh, bx.
 # The playwright package lives inside the skills dir and is NOT installed here.
-#
-# Note on "root": every RUN in a Dockerfile executes as root inside the image
-# unless we `USER dev` first. That is what the plan means by "built as root".
-# The human typing `docker build` can be `dev` (via the docker group); that
-# does not change how the image layers are built.
 ARG UBUNTU=24.04
 FROM ubuntu:${UBUNTU}
 
@@ -29,17 +24,28 @@ RUN apt-get update \
 RUN groupadd -g ${DEV_GID} dev \
  && useradd -m -u ${DEV_UID} -g dev -s /bin/bash dev
 
-# GitHub CLI (gh)
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-      -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
- && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+# GitHub CLI (gh) — official Debian/Ubuntu apt repo
+# https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian
+# Keyring SHA256 from that page (binary githubcli-archive-keyring.gpg).
+RUN install -m 0755 -d /etc/apt/keyrings \
+ && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      -o /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+ && echo "6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b  /etc/apt/keyrings/githubcli-archive-keyring.gpg" \
+      | sha256sum -c - \
+ && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+ && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list \
  && apt-get update && apt-get install -y gh \
  && rm -rf /var/lib/apt/lists/*
 
 # bx (Brave Search CLI) — a downloaded CLI tool the skills call from bash.
 # Runs as dev so it lands in ~/.local/bin (picked up by PATH below).
+# API key is NOT in the image. On the VPS, once:
+#   mkdir -p /home/dev/.config/bx
+#   printf 'BRAVE_SEARCH_API_KEY=thekey\n' > /home/dev/.config/bx/bx.env
+#   chmod 600 /home/dev/.config/bx/bx.env
+# Then every docker run:
+#   --env-file /home/dev/.config/bx/bx.env
 USER dev
 RUN curl -fsSL https://raw.githubusercontent.com/brave/brave-search-cli/main/scripts/install.sh | sh
 USER root

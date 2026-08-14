@@ -2,8 +2,6 @@
 # Build the shared base + thin agent images.
 #
 # Run as `dev` on the VPS (dev is in the docker group, so no sudo needed).
-# The Dockerfile RUN layers still execute as root inside each image; that is
-# independent of which account you invoke docker build from.
 set -euo pipefail
 cd "$(dirname "$0")"
 
