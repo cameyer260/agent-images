@@ -21,7 +21,12 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Non-root user. Runtime also overrides to host dev via --user.
-RUN groupadd -g ${DEV_GID} dev \
+# ubuntu:24.04 ships a stock `ubuntu` user/group at uid/gid 1000, which collides
+# with the host dev ids we bake in. The stock account is disposable (empty home,
+# no credentials), so remove it first, then create dev at the host's ids.
+RUN userdel -r ubuntu 2>/dev/null || true \
+ && groupdel ubuntu 2>/dev/null || true \
+ && groupadd -g ${DEV_GID} dev \
  && useradd -m -u ${DEV_UID} -g dev -s /bin/bash dev
 
 # GitHub CLI (gh) — official Debian/Ubuntu apt repo
