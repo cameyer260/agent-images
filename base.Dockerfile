@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       ca-certificates curl gnupg \
-      git ripgrep fd-find jq unzip \
+      git ripgrep fd-find jq unzip xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
 # Non-root user. Runtime also overrides to host dev via --user.
