@@ -10,8 +10,8 @@
 # Modes:
 #   one-shot (headless)  jarvis PROJECT TASK [--provider P] [--model M]
 #     Prints the response and exits; extra stdin is passed through.
-#     All args after PROJECT are forwarded to pi, so pi provider/model
-#     flags work here (note: also treat these as part of the task):
+#     All args after PROJECT are forwarded to pi as-is, so pi provider/
+#     model flags work here:
 #       jarvis proj --provider openai --model gpt-4o "write tests"
 #       jarvis proj --model anthropic/claude-sonnet-4-5 "refactor this"
 #   interactive           jarvis PROJECT
@@ -19,8 +19,8 @@
 #     or Ctrl+L; project-local config is trusted via -a.
 #
 # PROJECT is a bare name resolved under $PROJECTS_DIR (default /home/dev/projects),
-# or an absolute path. If the workspace does not exist it is created and chowned to
-# dev:dev. (Docker's plain -v would create it as root, which the container's dev
+# or an absolute path. If the workspace does not exist it is created (and chowned
+# to dev:dev when run as root — Docker's plain -v would create it as root, which the
 # user cannot write to.)
 set -euo pipefail
 
@@ -60,11 +60,13 @@ prepare_workspace() {
   if [[ ! -e "$dir" ]]; then
     if [[ "$dir" == "$PROJECTS_DIR"* ]]; then
       mkdir -p "$PROJECTS_DIR"
-      chown dev:dev "$PROJECTS_DIR"
+      if (( EUID == 0 )); then chown dev:dev "$PROJECTS_DIR"; fi
     fi
     echo "jarvis: workspace '$dir' does not exist — creating it (dev-owned)" >&2
     mkdir -p "$dir"
-    chown dev:dev "$dir"
+    # chown only works as root; when jarvis runs as dev, mkdir already
+    # creates dev-owned dirs and chown would fail (EPERM) and abort us.
+    if (( EUID == 0 )); then chown dev:dev "$dir"; fi
   fi
   [[ -d "$dir" ]] || die "workspace '$dir' exists but is not a directory"
   echo "$dir"
@@ -94,7 +96,7 @@ pi_cmd() {
 
   if (( $# > 0 )); then
     # One-shot: print the response and exit. Extra stdin is passed through.
-    docker run -i "${args[@]}" "$image" pi -p --approve "$*"
+    docker run -i "${args[@]}" "$image" pi -p --approve "$@"
   else
     # Interactive TUI; -a trusts project-local files.
     docker run -it "${args[@]}" "$image" pi -a

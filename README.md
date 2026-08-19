@@ -56,15 +56,15 @@ Install on the VPS (put it on your PATH and add completion):
 ```bash
 mkdir -p ~/bin
 ln -s /home/dev/agent-images/jarvis.sh ~/bin/jarvis
-printf 'export PATH="$HOME/bin:$PATH"\\n' >> ~/.bashrc
-printf 'source /home/dev/agent-images/jarvis-completion.bash\\n' >> ~/.bashrc
+printf 'export PATH="$HOME/bin:$PATH"\n' >> ~/.bashrc
+printf 'source /home/dev/agent-images/jarvis-completion.bash\n' >> ~/.bashrc
 ```
 
 Usage:
 
 ```bash
-jarvis pi my-project                    # interactive pi TUI in /workspace
-jarvis pi my-project "refactor the auth" # one-shot, prints and exits
+jarvis my-project                       # interactive pi TUI in /workspace
+jarvis my-project "refactor the auth"   # one-shot, prints and exits
 jarvis projects                         # list host projects
 jarvis build                            # rebuild all images
 ```

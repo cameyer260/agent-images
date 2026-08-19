@@ -1,4 +1,4 @@
-# Shared base for both agent images.
+# Shared base for the pi agent image.
 #
 # Provides a non-root `dev` user (matching the host's dev uid/gid via build
 # args) plus the common CLIs the skills call: git, ripgrep, fd, jq, gh, bx.
@@ -19,6 +19,9 @@ RUN apt-get update \
       ca-certificates curl gnupg \
       git ripgrep fd-find jq unzip xz-utils \
  && rm -rf /var/lib/apt/lists/*
+
+# Ubuntu's fd-find ships the binary as `fdfind`; skills expect `fd`.
+RUN ln -s "$(command -v fdfind)" /usr/local/bin/fd
 
 # Non-root user. Runtime also overrides to host dev via --user.
 # ubuntu:24.04 ships a stock `ubuntu` user/group at uid/gid 1000, which collides
