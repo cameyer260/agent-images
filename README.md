@@ -57,6 +57,7 @@ Install on the VPS (put it on your PATH and add completion):
 ```bash
 mkdir -p ~/bin
 ln -s /home/dev/agent-images/jarvis.sh ~/bin/jarvis
+ln -s /home/dev/agent-images/build-images.sh ~/bin/build-images.sh
 printf 'export PATH="$HOME/bin:$PATH"\n' >> ~/.bashrc
 printf 'source /home/dev/agent-images/jarvis-completion.bash\n' >> ~/.bashrc
 ```
