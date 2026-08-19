@@ -19,9 +19,9 @@
 #     or Ctrl+L; project-local config is trusted via -a.
 #
 # PROJECT is a bare name resolved under $PROJECTS_DIR (default /home/dev/projects),
-# or an absolute path. If the workspace does not exist it is created (and chowned
-# to dev:dev when run as root — Docker's plain -v would create it as root, which the
-# user cannot write to.)
+# or an absolute path. If the workspace does not exist it is created. jarvis runs
+# as dev, so mkdir already makes dev-owned dirs; Docker's plain -v on a missing
+# dir would create it as root, which the container's dev user cannot write to.
 set -euo pipefail
 
 PROJECTS_DIR="${AGENT_PROJECTS_DIR:-/home/dev/projects}"
@@ -60,13 +60,9 @@ prepare_workspace() {
   if [[ ! -e "$dir" ]]; then
     if [[ "$dir" == "$PROJECTS_DIR"* ]]; then
       mkdir -p "$PROJECTS_DIR"
-      if (( EUID == 0 )); then chown dev:dev "$PROJECTS_DIR"; fi
     fi
-    echo "jarvis: workspace '$dir' does not exist — creating it (dev-owned)" >&2
+    echo "jarvis: workspace '$dir' does not exist — creating it" >&2
     mkdir -p "$dir"
-    # chown only works as root; when jarvis runs as dev, mkdir already
-    # creates dev-owned dirs and chown would fail (EPERM) and abort us.
-    if (( EUID == 0 )); then chown dev:dev "$dir"; fi
   fi
   [[ -d "$dir" ]] || die "workspace '$dir' exists but is not a directory"
   echo "$dir"

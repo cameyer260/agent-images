@@ -48,8 +48,9 @@ You log into Pi once with the auth mounts; the Brave key is the env file.
 ## Shortcuts: `jarvis`
 
 `jarvis.sh` wraps the pi `docker run` command into one entrypoint. It
-pre-creates a workspace if it doesn't exist and chowns it to `dev:dev` (plain
-`-v` would create it as root, which the container's `dev` user can't write to).
+pre-creates a workspace if it doesn't exist. jarvis runs as `dev`, so the mkdir
+already makes dev-owned dirs; Docker's plain `-v` on a missing dir would create
+it as root, which the container's `dev` user can't write to.
 
 Install on the VPS (put it on your PATH and add completion):
 
@@ -78,7 +79,7 @@ script warns otherwise. Override the project root with `AGENT_PROJECTS_DIR`.
 
 | Tool | Where it's defined | Version |
 |---|---|---|
-| Pi agent | `agent-pi.Dockerfile` npm install | `@earendil-works/pi-coding-agent@0.84.1` |
+| Pi agent | `agent-pi.Dockerfile` npm install | `@earendil-works/pi-coding-agent@0.84.2` |
 | Node (Pi) | `agent-pi.Dockerfile` `NODE_VERSION` | `v24.19.0` (LTS) |
 | gh, bx, git, rg, fd, jq | `base.Dockerfile` | from the Ubuntu 24.04 apt repo / their installers |
 
