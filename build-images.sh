@@ -9,15 +9,12 @@ cd "$(dirname "$0")"
 DEV_UID=$(id -u)
 DEV_GID=$(id -g)
 
-echo "==> Building agent-base:24.04 (dev uid=$DEV_UID gid=$DEV_GID)"
+echo "==> Building agent-base (dev uid=$DEV_UID gid=$DEV_GID)"
 docker build --build-arg DEV_UID="$DEV_UID" --build-arg DEV_GID="$DEV_GID" \
-  -f base.Dockerfile -t agent-base:24.04 .
+  -f base.Dockerfile -t agent-base .
 
-echo "==> Building agent-pi:1.0"
-docker build -f agent-pi.Dockerfile -t agent-pi:1.0 .
-
-echo "==> Building agent-cursor:1.0"
-docker build -f agent-cursor.Dockerfile -t agent-cursor:1.0 .
+echo "==> Building agent-pi"
+docker build -f agent-pi.Dockerfile -t agent-pi .
 
 echo
 echo "==> Images:"

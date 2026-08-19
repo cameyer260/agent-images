@@ -1,13 +1,12 @@
 # agent-images
 
-Dockerfiles for the VPS agent containers described in `vps-plan.md` Phase 7.
+Dockerfiles for the VPS pi agent container described in `vps-plan.md` Phase 7.
 
 - `base.Dockerfile` — shared base: Ubuntu 24.04, a non-root `dev` user, and the
   CLIs the skills call (`git`, `ripgrep`, `fd`, `jq`, `gh`, `bx`).
 - `agent-pi.Dockerfile` — base + Node + `@earendil-works/pi-coding-agent`.
   Pi is an npm package and needs Node at install and runtime (`>=22.19.0`).
-- `agent-cursor.Dockerfile` — base + the `cursor-agent` CLI.
-- `build-images.sh` — builds all three; run as `dev` on the VPS.
+- `build-images.sh` — builds the images; run as `dev` on the VPS.
 
 ## Layout / workflow
 
@@ -27,7 +26,6 @@ OAuth tokens are mounted rw at runtime so the auto-refreshing sessions persist
 on the host:
 
 - Pi:      `-v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json`
-- Cursor:  `-v /home/dev/.config/Cursor:/home/dev/.config/Cursor`
 - Skills:  `-v /home/dev/.agents/skills:/home/dev/.agents/skills:ro`
 
 Brave Search (`bx`) uses a host env file, not an image layer. Create it once
@@ -39,13 +37,42 @@ printf 'BRAVE_SEARCH_API_KEY=thekey\n' > /home/dev/.config/bx/bx.env
 chmod 600 /home/dev/.config/bx/bx.env
 ```
 
-Pass it on every `docker run` (both `agent-pi` and `agent-cursor`):
+Pass it on every `docker run` (on `agent-pi`):
 
 ```bash
 --env-file /home/dev/.config/bx/bx.env
 ```
 
-You log into Pi/Cursor once with the auth mounts; the Brave key is the env file.
+You log into Pi once with the auth mounts; the Brave key is the env file.
+
+## Shortcuts: `jarvis`
+
+`jarvis.sh` wraps the pi `docker run` command into one entrypoint. It
+pre-creates a workspace if it doesn't exist and chowns it to `dev:dev` (plain
+`-v` would create it as root, which the container's `dev` user can't write to).
+
+Install on the VPS (put it on your PATH and add completion):
+
+```bash
+mkdir -p ~/bin
+ln -s /home/dev/agent-images/jarvis.sh ~/bin/jarvis
+printf 'export PATH="$HOME/bin:$PATH"\\n' >> ~/.bashrc
+printf 'source /home/dev/agent-images/jarvis-completion.bash\\n' >> ~/.bashrc
+```
+
+Usage:
+
+```bash
+jarvis pi my-project                    # interactive pi TUI in /workspace
+jarvis pi my-project "refactor the auth" # one-shot, prints and exits
+jarvis projects                         # list host projects
+jarvis build                            # rebuild all images
+```
+
+`PROJECT` may be a bare name (resolved under `/home/dev/projects`) or an
+absolute path. A `TASK` argument switches the container to one-shot mode.
+Auth mounts (pi) are added only when the host files exist, and the
+script warns otherwise. Override the project root with `AGENT_PROJECTS_DIR`.
 
 ## Versions (hardcoded in the Dockerfiles)
 
@@ -53,7 +80,6 @@ You log into Pi/Cursor once with the auth mounts; the Brave key is the env file.
 |---|---|---|
 | Pi agent | `agent-pi.Dockerfile` npm install | `@earendil-works/pi-coding-agent@0.84.1` |
 | Node (Pi) | `agent-pi.Dockerfile` `NODE_VERSION` | `v24.19.0` (LTS) |
-| Cursor CLI | `agent-cursor.Dockerfile` `CURSOR_VERSION` | `2026.08.11-e8db854` |
 | gh, bx, git, rg, fd, jq | `base.Dockerfile` | from the Ubuntu 24.04 apt repo / their installers |
 
 Upgrade by editing the exact version in the Dockerfile and rebuilding.

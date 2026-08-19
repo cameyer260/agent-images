@@ -17,7 +17,7 @@ docker run --rm -it \
   -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
   -v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json \
   -w /workspace \
-  agent-pi:1.0 pi -a
+  agent-pi pi -a
 ```
 
 ## Pi — one-shot prompt
@@ -33,37 +33,5 @@ docker run --rm \
   -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
   -v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json \
   -w /workspace \
-  agent-pi:1.0 pi -p --approve "TASK"
-```
-
-## Cursor CLI — interactive
-
-`--yolo` (alias `--force`) auto-approves commands and tool calls.
-
-```bash
-docker run --rm -it \
-  --name cursor-project-name \
-  --user "$(id -u dev):$(id -g dev)" \
-  --env-file /home/dev/.config/bx/bx.env \
-  -v /home/dev/projects/project-name:/workspace \
-  -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
-  -v /home/dev/.config/Cursor:/home/dev/.config/Cursor \
-  -w /workspace \
-  agent-cursor:1.0 cursor-agent --yolo
-```
-
-## Cursor CLI — one-shot prompt
-
-`-p` prints and exits; `--trust` skips the workspace-trust prompt in headless mode.
-
-```bash
-docker run --rm \
-  --name cursor-project-one-shot \
-  --user "$(id -u dev):$(id -g dev)" \
-  --env-file /home/dev/.config/bx/bx.env \
-  -v /home/dev/projects/project-name:/workspace \
-  -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
-  -v /home/dev/.config/Cursor:/home/dev/.config/Cursor \
-  -w /workspace \
-  agent-cursor:1.0 cursor-agent --yolo --trust -p "TASK"
+  agent-pi pi -p --approve "TASK"
 ```

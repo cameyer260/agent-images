@@ -1,7 +1,7 @@
 # Pi agent image: base + Node LTS + the pi agent package.
 # Provider config/auth is NOT baked in; it's mounted rw at runtime
 # (~/.pi/agent/auth.json) so the auto-refreshing OAuth session persists.
-FROM agent-base:24.04
+FROM agent-base
 
 USER root
 # Node LTS v24.19.0 — official linux-x64 tarball (VPS is amd64).
