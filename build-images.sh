@@ -3,7 +3,9 @@
 #
 # Run as `dev` on the VPS (dev is in the docker group, so no sudo needed).
 set -euo pipefail
-cd "$(dirname "$0")"
+# Resolve to the real script location even when invoked via a symlink (jarvis
+# installs ~/bin/build-images.sh as a link into agent-images).
+cd "$(dirname "$(realpath "$0")")"
 
 # Host dev's uid/gid get baked into the base image's `dev` user.
 DEV_UID=$(id -u)
