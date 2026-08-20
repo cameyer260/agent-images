@@ -14,10 +14,12 @@ ARG DEV_GID=1000
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# system GLib that Chromium needs.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       ca-certificates curl gnupg \
       git ripgrep fd-find jq unzip xz-utils \
+      libglib2.0-0 \
  && rm -rf /var/lib/apt/lists/*
 
 # Ubuntu's fd-find ships the binary as `fdfind`; skills expect `fd`.
@@ -60,4 +62,6 @@ USER root
 
 ENV HOME=/home/dev
 ENV PATH="/home/dev/.local/bin:$PATH"
+# Always use Playwright's bundled Chromium, never hunt for system Chrome.
+ENV PLAYWRIGHT_MCP_BROWSER=chromium
 WORKDIR /workspace
