@@ -78,6 +78,13 @@ USER dev
 RUN curl -fsSL https://raw.githubusercontent.com/brave/brave-search-cli/main/scripts/install.sh | sh
 USER root
 
+# Bake Playwright's bundled Chromium into the image (staged from the host's
+# ~/.cache/ms-playwright by build-images.sh into .ms-playwright-stage/). This
+# way the container never re-downloads Chromium on every run.
+RUN mkdir -p /home/dev/.cache/ms-playwright
+COPY .ms-playwright-stage/ /home/dev/.cache/ms-playwright/
+RUN chown -R dev:dev /home/dev/.cache
+
 ENV HOME=/home/dev
 ENV PATH="/home/dev/.local/bin:$PATH"
 # Always use Playwright's bundled Chromium, never hunt for system Chrome.
