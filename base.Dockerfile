@@ -14,12 +14,30 @@ ARG DEV_GID=1000
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# system GLib that Chromium needs.
+# Bundled Chromium's system library deps (Playwright docs, Ubuntu 24.04/noble set).
+# Ubuntu renames 64-bit packages with a `t64` suffix; `libasound2` is a virtual
+# package that must be spelled `libasound2t64`. Without these, Chromium exits
+# immediately with a missing .so error (exitCode 127).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       ca-certificates curl gnupg \
       git ripgrep fd-find jq unzip xz-utils \
-      libglib2.0-0 \
+      libasound2t64 \
+      libatk-bridge2.0-0t64 \
+      libcups2t64 \
+      libdbus-1-3 \
+      libdrm2 \
+      libegl-mesa0 \
+      libfontconfig1 \
+      libglib2.0-0t64 \
+      libgtk-3-0t64 \
+      libnspr4 \
+      libnss3 \
+      libpango-1.0-0 \
+      libpulse0 \
+      libspeechd2 \
+      libx11-6 \
+      libxcb1 \
  && rm -rf /var/lib/apt/lists/*
 
 # Ubuntu's fd-find ships the binary as `fdfind`; skills expect `fd`.
