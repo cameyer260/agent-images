@@ -91,3 +91,25 @@ Upgrade by editing the exact version in the Dockerfile and rebuilding.
 To bump a tool, change its exact version in the relevant Dockerfile and re-run
 `build-images.sh`. Rebuild the base layer when you add CLIs
 or skills dependencies.
+
+## Playwright Chromium is baked in from the host
+
+`build-images.sh` copies the host's already-downloaded Playwright Chromium
+bundle from `/home/dev/.cache/ms-playwright/` into the image at build time
+(`chromium-<rev>`, `chromium_headless_shell-<rev>`, `ffmpeg-<rev>`). The
+Dockerfile then `COPY`s it to `/home/dev/.cache/ms-playwright/` inside the
+image — the exact path Playwright checks at runtime — so the container never
+downloads Chromium on each run.
+
+**This relies on the host having Chromium installed at that location.** If the
+host doesn't have it, `build-images.sh` refuses to build with a clear error.
+If the host's bundle is stale/missing, re-run the playwright skill setup on
+the host (it downloads to `~/.cache/ms-playwright/`) and rebuild.
+
+**Upgrading Playwright will break this** until you rebuild. The image bakes
+in a *specific* revision (currently `chromium-1212`). If the pi-playwright
+package (mounted from `~/.agents`) is upgraded and expects a newer revision,
+the baked-in one won't match and the container will try to re-download (lost
+on `--rm`) or error "browser not installed". Fix: re-run the skill setup on
+the host so it downloads the new revision, then `build-images.sh` again —
+the script globs `chromium-*`, so no Dockerfile edit is needed.
