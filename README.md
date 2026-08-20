@@ -26,7 +26,7 @@ OAuth tokens are mounted rw at runtime so the auto-refreshing sessions persist
 on the host:
 
 - Pi:      `-v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json`
-- Skills:  `-v /home/dev/.agents/skills:/home/dev/.agents/skills:ro`
+- Skills:  `-v /home/dev/.agents:/home/dev/.agents:ro`  (whole dir; skill symlinks point into `packages/`)
 
 Brave Search (`bx`) uses a host env file, not an image layer. Create it once
 on the VPS as `dev`:

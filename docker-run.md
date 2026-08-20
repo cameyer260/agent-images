@@ -14,7 +14,7 @@ docker run --rm -it \
   --user "$(id -u dev):$(id -g dev)" \
   --env-file /home/dev/.config/bx/bx.env \
   -v /home/dev/projects/project-name:/workspace \
-  -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
+  -v /home/dev/.agents:/home/dev/.agents:ro \
   -v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json \
   -w /workspace \
   agent-pi pi -a
@@ -30,7 +30,7 @@ docker run --rm \
   --user "$(id -u dev):$(id -g dev)" \
   --env-file /home/dev/.config/bx/bx.env \
   -v /home/dev/projects/project-name:/workspace \
-  -v /home/dev/.agents/skills:/home/dev/.agents/skills:ro \
+  -v /home/dev/.agents:/home/dev/.agents:ro \
   -v /home/dev/.pi/agent/auth.json:/home/dev/.pi/agent/auth.json \
   -w /workspace \
   agent-pi pi -p --approve "TASK"

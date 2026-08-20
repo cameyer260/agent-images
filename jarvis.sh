@@ -25,7 +25,7 @@
 set -euo pipefail
 
 PROJECTS_DIR="${AGENT_PROJECTS_DIR:-/home/dev/projects}"
-SKILLS_DIR=/home/dev/.agents/skills
+AGENTS_DIR=/home/dev/.agents
 BX_ENV=/home/dev/.config/bx/bx.env
 PI_AUTH=/home/dev/.pi/agent/auth.json
 
@@ -81,7 +81,7 @@ pi_cmd() {
     --name "$name" \
     --user "$(id -u dev):$(id -g dev)" \
     -v "$dir:/workspace" \
-    -v "$SKILLS_DIR:/home/dev/.agents/skills:ro" \
+    -v "$AGENTS_DIR:/home/dev/.agents:ro" \
     -w /workspace \
     --env-file "$BX_ENV" )
   if [[ -f "$PI_AUTH" ]]; then
